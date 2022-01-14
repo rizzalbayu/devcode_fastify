@@ -1,10 +1,8 @@
 const fastify = require('fastify')();
 const migration = require('./config/create');
 migration.create();
-const newsRoutes = require('./routes/news');
 const activityRoutes = require('./routes/activity');
 const todoRoutes = require('./routes/todo');
-fastify.register(newsRoutes);
 fastify.register(todoRoutes);
 fastify.register(activityRoutes);
 module.exports = fastify;

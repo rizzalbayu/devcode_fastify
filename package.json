@@ -15,7 +15,9 @@
 		"dotenv": "^11.0.0",
 		"fastify": "^3.25.3",
 		"mysql2": "^2.3.3",
-		"node-cache": "^5.1.2",
+		"node-cache": "^5.1.2"
+	},
+	"devDependencies": {
 		"nodemon": "^2.0.15"
 	}
 }
