@@ -1,0 +1,21 @@
+{
+	"name": "test_fastify",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "nodemon server.js",
+		"start": "node server.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"dotenv": "^11.0.0",
+		"fastify": "^3.25.3",
+		"mysql2": "^2.3.3",
+		"node-cache": "^5.1.2",
+		"nodemon": "^2.0.15"
+	}
+}
