@@ -7,18 +7,18 @@ const storage = new NodeCache({
 	useClones: false,
 });
 module.exports = {
-	index: async (req, res) => {
-		const key = req.url;
+	index: async (request, reply) => {
+		const key = request.url;
 		const data = storage.get(key);
 		if (data) {
-			return res.send({
+			return reply.send({
 				status: 'Success',
 				message: 'Success',
 				data: data,
 			});
 		}
 		let todo = [];
-		let query = require('url').parse(req.url, true).query;
+		let query = require('url').parse(request.url, true).query;
 		if (query.activity_group_id == null) {
 			todo = await todoModel.searchAll();
 		} else {
@@ -28,74 +28,74 @@ module.exports = {
 		}
 		storage.set(key, todo[0]);
 
-		return res.send({
+		return reply.send({
 			status: 'Success',
 			message: 'Success',
 			data: todo[0],
 		});
 	},
-	create: async (req, res) => {
+	create: async (request, reply) => {
 		let { priority, is_active } = '';
-		if (req.body.priority === undefined) {
+		if (request.body.priority === undefined) {
 			priority = 'very-high';
 		}
-		if (req.body.is_active === undefined) {
+		if (request.body.is_active === undefined) {
 			is_active = true;
 		}
-		if (req.body.title === undefined) {
-			return res.status(400).send({
+		if (request.body.title === undefined) {
+			return reply.status(400).send({
 				status: 'Bad Request',
 				message: 'title cannot be null',
 				data: {},
 			});
 		}
-		if (req.body.activity_group_id === undefined) {
-			return res.status(400).send({
+		if (request.body.activity_group_id === undefined) {
+			return reply.status(400).send({
 				status: 'Bad Request',
 				message: 'activity_group_id cannot be null',
 				data: {},
 			});
 		}
 		const activity = await todoModel.searchActivity(
-			req.body.activity_group_id
+			request.body.activity_group_id
 		);
 		if (activity == '') {
-			return res.status(404).send({
+			return reply.status(404).send({
 				status: 'Not Found',
 				message:
 					'Activity with ID ' +
-					req.body.activity_group_id +
+					request.body.activity_group_id +
 					' Not Found',
 				data: {},
 			});
 		}
 		const now = new Date(date);
 		const params = {
-			activity_group_id: req.body.activity_group_id,
-			title: req.body.title,
+			activity_group_id: request.body.activity_group_id,
+			title: request.body.title,
 			date: now,
 		};
 		const todo = await todoModel.create(params);
-		return res.status(201).send({
+		return reply.status(201).send({
 			status: 'Success',
 			message: 'Success',
 			data: {
 				created_at: now,
 				updated_at: now,
 				id: todo[0].insertId,
-				title: req.body.title,
-				activity_group_id: req.body.activity_group_id,
+				title: request.body.title,
+				activity_group_id: request.body.activity_group_id,
 				is_active: is_active,
 				priority: priority,
 			},
 		});
 	},
-	detail: async (req, res) => {
-		const id = req.params.id;
-		const key = req.url;
+	detail: async (request, reply) => {
+		const id = request.params.id;
+		const key = request.url;
 		const data = storage.get(key);
 		if (data) {
-			return res.send({
+			return reply.send({
 				status: 'Success',
 				message: 'Success',
 				data: data,
@@ -104,13 +104,13 @@ module.exports = {
 		const todo = await todoModel.searchOne(id);
 		storage.set(key, todo[0]);
 		if (todo == '') {
-			return res.status(404).send({
+			return reply.status(404).send({
 				status: 'Not Found',
 				message: 'Todo with ID ' + id + ' Not Found',
 				data: {},
 			});
 		}
-		return res.send({
+		return reply.send({
 			status: 'Success',
 			message: 'Success',
 			data: {
@@ -125,37 +125,37 @@ module.exports = {
 			},
 		});
 	},
-	update: async (req, res) => {
-		const id = req.params.id;
+	update: async (request, reply) => {
+		const id = request.params.id;
 
 		const todo = await todoModel.searchOne(id);
 
 		if (todo == '') {
-			return res.status(404).send({
+			return reply.status(404).send({
 				status: 'Not Found',
 				message: 'Todo with ID ' + id + ' Not Found',
 				data: {},
 			});
 		}
 		let { title, is_active, priority } = '';
-		if (req.body.title === undefined) {
+		if (request.body.title === undefined) {
 			title = todo[0].title;
 		} else {
-			title = req.body.title;
+			title = request.body.title;
 		}
-		if (req.body.is_active === undefined) {
+		if (request.body.is_active === undefined) {
 			is_active = todo[0].is_active;
 		} else {
-			is_active = req.body.is_active;
+			is_active = request.body.is_active;
 		}
-		if (req.body.priority === undefined) {
+		if (request.body.priority === undefined) {
 			priority = todo[0].priority;
 		} else {
-			priority = req.body.priority;
+			priority = request.body.priority;
 		}
 
-		if (req.body.activity_group_id) {
-			return res.status(400).json({
+		if (request.body.activity_group_id) {
+			return reply.status(400).json({
 				status: 'Bad Request',
 				message: 'activity_group_id cannot be null',
 				data: {},
@@ -170,7 +170,7 @@ module.exports = {
 			date: now,
 		};
 		await todoModel.update(params);
-		return res.send({
+		return reply.send({
 			status: 'Success',
 			message: 'Success',
 			data: {
@@ -185,13 +185,13 @@ module.exports = {
 			},
 		});
 	},
-	remove: async (req, res) => {
-		const id = req.params.id;
+	remove: async (request, reply) => {
+		const id = request.params.id;
 
 		const todo = await todoModel.searchOne(id);
 
 		if (todo == '') {
-			return res.status(404).send({
+			return reply.status(404).send({
 				status: 'Not Found',
 				message: 'Todo with ID ' + id + ' Not Found',
 				data: {},
@@ -199,7 +199,7 @@ module.exports = {
 		}
 		const now = new Date(date);
 		await todoModel.remove(id, now);
-		return res.send({
+		return reply.send({
 			status: 'Success',
 			message: 'Success',
 			data: {},
