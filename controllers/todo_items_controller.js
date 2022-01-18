@@ -1,5 +1,4 @@
 const todoModel = require('../models/todo_item');
-date = Date.now();
 const NodeCache = require('node-cache');
 const storage = new NodeCache({
 	stdTTL: 3600,
@@ -35,13 +34,6 @@ module.exports = {
 		});
 	},
 	create: async (request, reply) => {
-		let { priority, is_active } = '';
-		if (request.body.priority === undefined) {
-			priority = 'very-high';
-		}
-		if (request.body.is_active === undefined) {
-			is_active = true;
-		}
 		if (request.body.title === undefined) {
 			return reply.status(400).send({
 				status: 'Bad Request',
@@ -69,7 +61,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(date);
+		const now = new Date(Date.now());
 		const params = {
 			activity_group_id: request.body.activity_group_id,
 			title: request.body.title,
@@ -85,8 +77,8 @@ module.exports = {
 				id: todo[0].insertId,
 				title: request.body.title,
 				activity_group_id: request.body.activity_group_id,
-				is_active: is_active,
-				priority: priority,
+				is_active: true,
+				priority: 'very-high',
 			},
 		});
 	},
@@ -161,7 +153,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(date);
+		const now = new Date(Date.now());
 		params = {
 			id: id,
 			title: title,
@@ -197,7 +189,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(date);
+		const now = new Date(Date.now());
 		await todoModel.remove(id, now);
 		return reply.send({
 			status: 'Success',

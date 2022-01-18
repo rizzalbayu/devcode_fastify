@@ -1,5 +1,4 @@
 const activityModel = require('../models/activity_group');
-date = Date.now();
 const NodeCache = require('node-cache');
 const storage = new NodeCache({
 	stdTTL: 3600,
@@ -34,7 +33,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(date);
+		const now = new Date(Date.now());
 		const params = {
 			email: request.body.email,
 			title: request.body.title,
@@ -102,7 +101,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(date);
+		const now = new Date(Date.now());
 		params = {
 			id: id,
 			email: email,
@@ -135,7 +134,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(date);
+		const now = new Date(Date.now());
 		await activityModel.remove(id, now);
 		return reply.send({
 			status: 'Success',
