@@ -1,14 +1,12 @@
 const activityModel = require('../models/activity_group');
-const NodeCache = require('node-cache');
-const storage = new NodeCache({
-	stdTTL: 3600,
-	checkperiod: 120,
-	useClones: false,
-});
+let LRU = require('lru-cache'),
+	options = { max: 50, maxAge: 1000 * 60 * 60 },
+	cache = new LRU(options);
+let createid = 0;
 module.exports = {
 	index: async (request, reply) => {
 		const key = request.url;
-		const data = storage.get(key);
+		const data = cache.get(key);
 		if (data) {
 			return reply.send({
 				status: 'Success',
@@ -17,8 +15,7 @@ module.exports = {
 			});
 		}
 		const activity = await activityModel.searchAll();
-		storage.set(key, activity[0]);
-
+		cache.set(key, activity[0]);
 		return reply.send({
 			status: 'Success',
 			message: 'Success',
@@ -33,20 +30,22 @@ module.exports = {
 				data: {},
 			});
 		}
+		createid =
+			Math.floor(Math.random() * (99999999 - 10000000)) + 10000000;
 		const now = new Date(Date.now());
 		const params = {
 			email: request.body.email,
 			title: request.body.title,
-			date: now,
+			id: createid,
 		};
-		const activity = await activityModel.create(params);
+		activityModel.create(params);
 		return reply.status(201).send({
 			status: 'Success',
 			message: 'Success',
 			data: {
 				created_at: now,
 				updated_at: now,
-				id: activity[0].insertId,
+				id: createid,
 				title: request.body.title,
 				email: request.body.email,
 			},
@@ -55,7 +54,7 @@ module.exports = {
 	detail: async (request, reply) => {
 		const id = request.params.id;
 		const key = request.url;
-		const data = storage.get(key);
+		const data = cache.get(key);
 		if (data) {
 			return reply.send({
 				status: 'Success',
@@ -64,7 +63,7 @@ module.exports = {
 			});
 		}
 		const activity = await activityModel.searchOne(id);
-		storage.set(key, activity[0]);
+		cache.set(key, activity[0]);
 		if (activity == '') {
 			return reply.status(404).send({
 				status: 'Not Found',
@@ -80,9 +79,7 @@ module.exports = {
 	},
 	update: async (request, reply) => {
 		const id = request.params.id;
-
 		const activity = await activityModel.searchOne(id);
-
 		if (activity == '') {
 			return reply.status(404).send({
 				status: 'Not Found',
@@ -106,9 +103,8 @@ module.exports = {
 			id: id,
 			email: email,
 			title: request.body.title,
-			date: now,
 		};
-		await activityModel.update(params);
+		activityModel.update(params);
 		return reply.send({
 			status: 'Success',
 			message: 'Success',
@@ -124,9 +120,7 @@ module.exports = {
 	},
 	remove: async (request, reply) => {
 		const id = request.params.id;
-
 		const activity = await activityModel.searchOne(id);
-
 		if (activity == '') {
 			return reply.status(404).send({
 				status: 'Not Found',
@@ -134,8 +128,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		const now = new Date(Date.now());
-		await activityModel.remove(id, now);
+		activityModel.remove(id);
 		return reply.send({
 			status: 'Success',
 			message: 'Success',
