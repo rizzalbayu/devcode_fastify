@@ -14,7 +14,6 @@
 	"dependencies": {
 		"dotenv": "^11.0.0",
 		"fastify": "^3.25.3",
-		"fastify-compress": "^4.0.1",
 		"lru-cache": "^6.0.0",
 		"mysql2": "^2.3.3"
 	},

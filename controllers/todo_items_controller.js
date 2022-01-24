@@ -2,7 +2,6 @@ const todoModel = require('../models/todo_item');
 let LRU = require('lru-cache'),
 	options = { max: 50, maxAge: 1000 * 60 * 60 },
 	cache = new LRU(options);
-let createid = 0;
 module.exports = {
 	index: async (request, reply) => {
 		const key = request.url;
@@ -58,7 +57,7 @@ module.exports = {
 				data: {},
 			});
 		}
-		createid =
+		const createid =
 			Math.floor(Math.random() * (99999999 - 10000000)) + 10000000;
 		const now = new Date(Date.now());
 		const params = {
