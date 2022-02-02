@@ -45,8 +45,8 @@ module.exports = {
 			});
 		}
 		let email = '';
-		console.log(request.body.email);
 		if (request.body.email === undefined) {
+			console.log('test');
 		} else {
 			email = request.body.email;
 		}
